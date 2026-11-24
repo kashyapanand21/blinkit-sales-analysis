@@ -1,0 +1,20 @@
+{
+  "name": "quickkart",
+  "version": "1.0.0",
+  "description": "QuickKart: Blinkit-inspired mini grocery store. DBMS college project with Node.js, Express and MySQL",
+  "main": "server.js",
+  "scripts": {
+    "setup": "node scripts/setup-db.js",
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.10",
+    "ejs": "^7.0.2",
+    "express": "^5.3.0",
+    "mysql2": "^3.24.6"
+  }
+}

@@ -1,116 +1,126 @@
-# QuickKart – Mini Grocery Shopping Website (Blinkit-Inspired)
+# QuickKart: Mini Grocery Store with MySQL
 
-A clean, responsive, and functional relational database web project designed specifically for **2nd Year Engineering Coursework in DBMS (Database Management Systems) / DMGT**.
+A Blinkit-inspired 10-minute grocery store built for a 2nd-year **DBMS** college project.
+It shows how a MySQL database powers a real web app: browsing products, a shopping cart,
+placing orders inside a transaction, an admin inventory panel, and a sales analytics page.
+
+**Stack:** HTML, CSS, JavaScript (frontend) · Node.js + Express + EJS (backend) · MySQL (database)
+
+```
+Browser (HTML / CSS / JS)
+        │   HTTP request, e.g. GET /?search=milk  or  POST /place-order
+        ▼
+Node.js + Express  (routes/*.js)
+        │   SQL with ? placeholders via mysql2
+        ▼
+MySQL  (quickkart_db: 5 tables in 3NF)
+```
 
 ---
 
-## 📌 Technology Stack
+## Features
 
-- **Frontend:** HTML5, CSS3 (Blinkit Green `#0c831f` & Yellow `#f8cb46` theme), Vanilla JavaScript (No React/Node/Mongo bloat).
-- **Backend:** PHP 7.4+ / 8.x (Native PDO with prepared statements).
-- **Database:** MySQL 5.7+ / 8.0 / MariaDB.
-- **Local Server Environment:** XAMPP (Apache + MySQL + phpMyAdmin).
+| Page | What it does | SQL concepts |
+|------|--------------|--------------|
+| **Store** `/` | Product grid, search, category filter, sort | `SELECT`, `INNER JOIN`, `WHERE`, `LIKE`, `ORDER BY` |
+| **Cart** `/cart` | Cart saved in the browser, live bill, checkout form | (client side) |
+| **Place order** `POST /place-order` | Saves customer, order, items; reduces stock | **Transaction** (`BEGIN`/`COMMIT`/`ROLLBACK`), `SELECT … FOR UPDATE`, `INSERT`, `UPDATE` |
+| **Orders** `/orders` | Order history with customer and items; change status | `COUNT`, `SUM`, `AVG`, multi-table `JOIN`, `UPDATE` |
+| **Admin** `/admin` | Category stats, add / restock / delete products | `GROUP BY`, `LEFT JOIN`, `INSERT`, `UPDATE`, `DELETE`, foreign-key protection |
+| **Analytics** `/analytics` | Sales dashboard with the SQL shown under every report | `GROUP BY`, `HAVING`, subqueries, `RANK() OVER`, running totals, `CASE` |
 
 ---
 
-## 📁 Project Directory Structure
+## 1. Requirements (Windows)
 
-```text
-QuickKart/
-│
+| Tool | Download | Check |
+|------|----------|-------|
+| Node.js 18 or newer (LTS) | nodejs.org | `node -v` |
+| MySQL 8.0+ | dev.mysql.com/downloads/installer, **or** XAMPP (its MariaDB works too) | MySQL running |
+
+> Window functions (`RANK() OVER`) need MySQL 8.0+ or MariaDB 10.2+. XAMPP's bundled MariaDB is fine.
+
+## 2. Setup
+
+```bash
+git clone <your-repo-url>
+cd <your-repo-folder>
+npm install
+copy .env.example .env
+```
+
+Open `.env` and set your MySQL password (`DB_PASSWORD=`). With XAMPP the default is user `root` and an **empty** password, so you can leave it blank.
+
+Create the database and sample data:
+
+```bash
+npm run setup
+```
+
+This runs `database/schema.sql`: it creates `quickkart_db`, the 5 tables, 24 products, 5 customers and 14 sample orders spread over the last two weeks.
+(Or import `database/schema.sql` in MySQL Workbench / phpMyAdmin; the result is the same.)
+
+> Running `npm run setup` again **resets** the database to the sample data.
+
+## 3. Run
+
+```bash
+npm start
+```
+
+Open **http://localhost:3000**. Use `npm run dev` instead to auto-restart when you edit a file.
+
+---
+
+## 4. Project structure
+
+```
+├── server.js               Express app: views, static files, routes, error pages
 ├── config/
-│   └── db.php                  # PDO database connection with beginner-friendly error handling
-│
-├── css/
-│   └── style.css               # Blinkit-inspired responsive styling, card grid, tables, badges
-│
-├── js/
-│   └── app.js                  # Cart state (localStorage), badge counter, total calculator
-│
+│   └── db.js               MySQL connection pool (mysql2)
+├── routes/
+│   ├── store.js            Store, cart, place order (transaction), order history
+│   ├── admin.js            Add / restock / delete products, change order status
+│   └── analytics.js        Sales analytics queries
+├── views/                  EJS templates (HTML with <%= %> placeholders)
+│   ├── partials/           header.ejs, footer.ejs (shared navbar and footer)
+│   ├── index.ejs           Store
+│   ├── cart.ejs            Cart + checkout form
+│   ├── order-success.ejs   Order confirmation
+│   ├── orders.ejs          Order history
+│   ├── admin.ejs           Admin console
+│   ├── analytics.ejs       Analytics dashboard
+│   └── error.ejs           404 / database error page
+├── public/
+│   ├── css/style.css       All styling
+│   ├── js/app.js           Cart logic (localStorage) and button handlers
+│   └── img/placeholder.svg Shown if a product image can't load
 ├── database/
-│   ├── schema.sql              # Database DDL (5 normalized tables) + realistic grocery seed data
-│   └── queries_showcase.sql    # Every required SQL query categorized for Viva & Lab exams
-│
-├── index.php                   # Home catalog (Category filter, price sort, SQL LIKE search)
-├── cart.php                    # Shopping cart & checkout form for customer credentials
-├── place_order.php             # Backend processor (ACID Transaction, stock decrement, order items)
-├── orders.php                  # Relational report page (INNER JOIN across 5 tables, COUNT, SUM, AVG)
-├── admin.php                   # Product management portal (SQL INSERT, DELETE, GROUP BY metrics)
-├── admin_actions.php           # Handles admin product additions and deletions securely
-├── PROJECT_REPORT.md           # Full academic report, ER diagram, 3NF normalization & Viva Q&A
-└── README.md                   # Setup guide and instructions
+│   ├── schema.sql          Tables, constraints, seed data
+│   └── queries_showcase.sql 20 labelled SQL queries for the lab/viva
+├── scripts/
+│   └── setup-db.js         Runs schema.sql (npm run setup)
+├── PROJECT_REPORT.md       Report: ER diagram, normalization, viva Q&A
+├── .env.example            Copy to .env
+└── package.json
 ```
 
----
+## 5. Demo script (3–4 minutes)
 
-## 🚀 Setup & Installation Guide (Using XAMPP)
+1. **Store:** search "milk" (`LIKE`), click a category (`WHERE`), sort by price (`ORDER BY`).
+2. Add a few items to the cart, open **Cart**, change quantities, fill in the form, place the order.
+3. On the confirmation, open **Orders**: your order is at the top, joined with its customer and items. Change its status (`UPDATE`).
+4. **Admin:** stock for the items you bought has gone down. Try to **Delete** product #1. MySQL refuses because it's in past orders (`ON DELETE RESTRICT`). Add a new product, then delete it (works, no orders).
+5. **Analytics:** open *Show SQL* under "Best-Selling Product in Each Category" and explain `RANK() OVER (PARTITION BY …)`.
+6. **Transaction rollback:** add more of "McCain French Fries" than the 6 in stock and try to order. The order is rejected and *nothing* is saved, not even the new customer, because the whole transaction is rolled back.
 
-Follow these step-by-step instructions to run the project locally on your machine:
+## 6. Troubleshooting
 
-### Step 1: Install XAMPP
-If not already installed, download and install [XAMPP for Windows](https://www.apachefriends.org/index.html).
-
-### Step 2: Copy Project to `htdocs`
-Copy the entire `QuickKart` folder to your XAMPP web root directory:
-```text
-C:\xampp\htdocs\QuickKart
-```
-
-### Step 3: Start Apache & MySQL
-1. Open the **XAMPP Control Panel**.
-2. Click **Start** next to **Apache**.
-3. Click **Start** next to **MySQL**.
-Both modules should turn green.
-
-### Step 4: Import Database in phpMyAdmin
-1. Open your web browser and navigate to: [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
-2. In the top navigation bar, click the **Import** tab.
-3. Click **Choose File** and select:
-   ```text
-   C:\xampp\htdocs\QuickKart\database\schema.sql
-   ```
-4. Scroll to the bottom and click **Go** (or **Import**).
-5. The `quickkart_db` database will be created with all 5 normalized tables and sample grocery products.
-
-### Step 5: Launch the Website
-Open your browser and visit:
-```text
-http://localhost/QuickKart/
-```
-
----
-
-## 🧪 Step-by-Step Feature Walkthrough
-
-1. **Browse Groceries:**
-   - Scroll through 20+ realistic grocery items categorized under Dairy, Fruits & Vegetables, Cold Drinks, Snacks, and Bakery.
-2. **Search using SQL `LIKE`:**
-   - Type `milk`, `apple`, `chips`, or `coke` in the top search bar and press Enter.
-3. **Filter & Sort:**
-   - Click category chips (e.g., *Dairy, Bread & Eggs*, *Fruits & Vegetables*).
-   - Use the **Sort by** dropdown to sort products by *Price: Low to High* or *High to Low*.
-4. **Cart Operations:**
-   - Click **+ ADD** on any item to add it to your shopping cart.
-   - Click the green **🛒 My Cart** button in the navbar.
-   - In `cart.php`, change quantity (+ / -) or remove items. The subtotal and delivery fees recalculate automatically.
-5. **Place an Order:**
-   - Fill in your name, email, phone number, and delivery address.
-   - Click **🚀 Place 10-Min Order**.
-   - Behind the scenes, PHP runs a MySQL **ACID transaction** (`BEGIN TRANSACTION`, `INSERT INTO customers`, `INSERT INTO orders`, `INSERT INTO order_items`, and decrements inventory in `products`).
-6. **View Order History:**
-   - Click **📦 My Orders** (`orders.php`) to view the relational report powered by multi-table `INNER JOIN`s, `COUNT()`, `SUM()`, and `AVG()`.
-7. **Admin Product Management:**
-   - Click **⚙️ Admin** (`admin.php`).
-   - View category-level product counts using `GROUP BY`.
-   - Add a new product via the form (`INSERT`).
-   - Delete an item from the table (`DELETE`).
-
----
-
-## 🎓 Academic Evaluation Highlights
-
-- **No Hardcoded Products:** All items and categories are dynamically read from MySQL tables.
-- **Relational Integrity:** Implemented foreign keys with `ON DELETE CASCADE` and `ON UPDATE CASCADE`.
-- **Prepared Statements:** Uses PHP PDO prepared queries to prevent SQL Injection.
-- **Transactions:** Demonstrates ACID properties when generating order invoices.
-- **Documentation:** Full ER diagram, Relational Schema, and Viva Q&A available in [`PROJECT_REPORT.md`](PROJECT_REPORT.md).
+| Problem | Fix |
+|---------|-----|
+| `Access denied for user 'root'` | Wrong `DB_PASSWORD` in `.env` |
+| `ECONNREFUSED` | MySQL isn't running. Start it in XAMPP, or Windows Services → **MySQL80** |
+| `Unknown database 'quickkart_db'` | Run `npm run setup` |
+| Syntax error near `OVER` | MySQL is older than 8.0. Upgrade, or use XAMPP's MariaDB |
+| Port 3000 in use | Change `PORT` in `.env` |
+| Product images missing | They load from Unsplash, so you need internet. A cart icon is shown instead when offline. |

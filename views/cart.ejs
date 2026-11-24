@@ -1,0 +1,84 @@
+<%- include('partials/header') %>
+
+<h1 class="page-title">Shopping Cart &amp; Checkout</h1>
+
+<% if (error) { %>
+    <div class="alert alert-error">⚠️ <%= error %></div>
+<% } %>
+
+<!-- Shown by app.js when the cart is empty -->
+<div id="cart-empty-state" class="empty-state" hidden>
+    <div class="empty-icon">🛒</div>
+    <h2>Your cart is empty</h2>
+    <p>Looks like you haven't added anything to your cart yet.</p>
+    <a href="/" class="cart-pill-btn btn-inline">Browse Fresh Groceries</a>
+</div>
+
+<div id="cart-active-layout" class="cart-layout">
+
+    <!-- Left: items (rendered by public/js/app.js from localStorage) -->
+    <div class="cart-card">
+        <h2 class="card-title">Review Cart Items</h2>
+        <div class="table-scroll">
+            <table class="cart-table">
+                <thead>
+                    <tr><th>Product</th><th>Price</th><th>Qty</th><th>Subtotal</th><th></th></tr>
+                </thead>
+                <tbody id="cart-table-body"></tbody>
+            </table>
+        </div>
+        <div class="cart-footer-row">
+            <a href="/" class="link-green">+ Add more items</a>
+            <button type="button" id="clear-cart" class="btn-link-danger">Clear Entire Cart</button>
+        </div>
+    </div>
+
+    <!-- Right: bill + customer form -->
+    <div class="summary-card">
+        <h2 class="card-title">Bill &amp; Delivery Details</h2>
+
+        <div class="summary-row"><span>Items Subtotal</span><strong id="cart-subtotal">₹0.00</strong></div>
+        <div class="summary-row"><span>Delivery Charge</span><strong id="cart-delivery-fee">FREE</strong></div>
+        <div class="muted-small">Orders above ₹<%= freeAbove %> get FREE delivery (otherwise ₹<%= deliveryFee %>).</div>
+        <div class="summary-total"><span>To Pay</span><span id="cart-grand-total" class="text-green">₹0.00</span></div>
+        <p class="muted-small">Final prices are re-checked against the database when you order.</p>
+
+        <hr class="divider">
+
+        <!-- Posts to Express: routes/store.js -> POST /place-order -->
+        <form action="/place-order" method="POST" class="checkout-form" id="checkout-form">
+            <input type="hidden" name="cart_items_json" id="cart_items_json" value="">
+
+            <div class="form-group">
+                <label for="full_name">Full Name *</label>
+                <input type="text" id="full_name" name="full_name" class="form-input" placeholder="e.g. Rahul Sharma" required maxlength="120">
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="e.g. rahul@example.com" required maxlength="120">
+            </div>
+            <div class="form-group">
+                <label for="phone">Mobile Phone *</label>
+                <input type="tel" id="phone" name="phone" class="form-input" placeholder="e.g. 9876543210"
+                       pattern="[0-9]{10}" title="Please enter a 10-digit mobile number" required>
+            </div>
+            <div class="form-group">
+                <label for="delivery_address">Complete Delivery Address *</label>
+                <textarea id="delivery_address" name="delivery_address" rows="3" class="form-textarea"
+                          placeholder="Flat No., Hostel Room, Street / Sector, Landmark" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="payment_method">Payment Mode</label>
+                <select id="payment_method" name="payment_method" class="form-select">
+                    <% paymentMethods.forEach(m => { %>
+                        <option value="<%= m %>"><%= m === 'UPI' ? 'Instant UPI / QR Code' : m %></option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-checkout">🚀 Place 10-Min Order</button>
+        </form>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

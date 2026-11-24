@@ -1,0 +1,91 @@
+<%- include('partials/header') %>
+
+<h1 class="page-title">Order History &amp; Relational Reports</h1>
+<p class="page-sub">Live order records from MySQL using <code>INNER JOIN</code> and aggregate functions.</p>
+
+<% if (msg) { %>
+    <div class="alert alert-success">✅ <%= msg %></div>
+<% } %>
+
+<!-- Aggregates: COUNT, SUM, AVG -->
+<div class="metric-grid">
+    <div class="admin-card metric metric-green">
+        <span class="metric-label">Total Orders Placed (COUNT)</span>
+        <div class="metric-value"><%= metrics.total_orders %></div>
+    </div>
+    <div class="admin-card metric metric-yellow">
+        <span class="metric-label">Total Grocery Revenue (SUM)</span>
+        <div class="metric-value text-green"><%= inr(metrics.total_sales) %></div>
+    </div>
+    <div class="admin-card metric metric-blue">
+        <span class="metric-label">Average Order Value (AVG)</span>
+        <div class="metric-value text-blue"><%= inr(metrics.average_order_value) %></div>
+    </div>
+</div>
+
+<% if (orders.length === 0) { %>
+    <div class="admin-card empty-state">
+        <h3>No orders placed yet</h3>
+        <p>Add some groceries to your cart and place an order!</p>
+    </div>
+<% } %>
+
+<% orders.forEach(ord => {
+     const statusClass = {
+       'Placed': 'badge-placed', 'Preparing': 'badge-preparing',
+       'Out for Delivery': 'badge-out', 'Delivered': 'badge-delivered'
+     }[ord.order_status] || 'badge-placed';
+     const items = itemsByOrder[ord.order_id] || [];
+%>
+<div class="admin-card order-card" id="order-<%= ord.order_id %>">
+    <div class="order-head">
+        <div>
+            <span class="order-id">Order #<%= ord.order_id %></span>
+            <span class="muted-small">· <%= fmtDate(ord.order_date) %></span>
+        </div>
+        <div class="order-head-right">
+            <!-- UPDATE orders SET order_status = ? -->
+            <form method="POST" action="/admin/orders/<%= ord.order_id %>/status" class="status-form">
+                <span class="badge-status <%= statusClass %>"><%= ord.order_status %></span>
+                <select name="order_status" class="sort-select" onchange="this.form.submit()" aria-label="Change status">
+                    <% statuses.forEach(s => { %>
+                        <option <%= s === ord.order_status ? 'selected' : '' %>><%= s %></option>
+                    <% }) %>
+                </select>
+            </form>
+            <span class="order-total"><%= inr(ord.total_amount) %></span>
+        </div>
+    </div>
+
+    <!-- From the customers table (INNER JOIN) -->
+    <div class="customer-grid">
+        <div><span>Customer</span><strong><%= ord.customer_name %></strong></div>
+        <div><span>Phone</span><strong><%= ord.phone %></strong></div>
+        <div><span>Payment</span><strong><%= ord.payment_method %></strong></div>
+        <div><span>Address</span><span><%= ord.delivery_address %></span></div>
+    </div>
+
+    <!-- From order_items + products + categories (multi-table JOIN) -->
+    <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr><th>Product</th><th>Category</th><th>Unit</th><th>Unit Price</th><th>Qty</th><th>Line Total</th></tr>
+            </thead>
+            <tbody>
+                <% items.forEach(it => { %>
+                <tr>
+                    <td><strong><%= it.product_name %></strong></td>
+                    <td><span class="category-tag"><%= it.category_name %></span></td>
+                    <td><%= it.unit %></td>
+                    <td><%= inr(it.unit_price) %></td>
+                    <td><span class="qty-pill"><%= it.quantity %></span></td>
+                    <td class="text-green strong"><%= inr(it.subtotal) %></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+<% }) %>
+
+<%- include('partials/footer') %>

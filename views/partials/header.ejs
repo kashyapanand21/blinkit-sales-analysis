@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230c831f'/><text x='16' y='23' font-size='20' text-anchor='middle' fill='%23f8cb46' font-family='Arial' font-weight='bold'>Q</text></svg>">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <% if (currentPath === '/') { %>
+    <div class="top-delivery-bar">
+        ⚡ Superfast 10-minute grocery delivery to your doorstep | Free delivery on orders above ₹199!
+    </div>
+    <% } %>
+
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="/" class="brand-logo">Quick<span>Kart</span></a>
+
+            <% if (currentPath === '/') { %>
+            <div class="delivery-badge">
+                <span class="delivery-eta">Delivery in 10 Mins</span>
+                <strong>College Campus, Block B</strong>
+            </div>
+
+            <!-- Search: SQL LIKE -->
+            <form action="/" method="GET" class="search-form">
+                <% if (locals.categoryId > 0) { %>
+                    <input type="hidden" name="category" value="<%= categoryId %>">
+                <% } %>
+                <span class="search-icon">🔍</span>
+                <input type="text" name="search" class="search-input"
+                       placeholder="Search for 'milk', 'bread', 'maggi' or 'chips'..."
+                       value="<%= locals.search || '' %>">
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+            <% } %>
+
+            <nav class="nav-actions">
+                <a href="/" class="nav-link <%= currentPath === '/' ? 'active' : '' %>">🛍️ Store</a>
+                <a href="/orders" class="nav-link <%= currentPath === '/orders' ? 'active' : '' %>">📦 Orders</a>
+                <a href="/analytics" class="nav-link <%= currentPath === '/analytics' ? 'active' : '' %>">📊 Analytics</a>
+                <a href="/admin" class="nav-link <%= currentPath === '/admin' ? 'active' : '' %>">⚙️ Admin</a>
+                <a href="/cart" class="cart-pill-btn">
+                    <span>🛒 Cart</span>
+                    <span id="navbar-cart-count" class="cart-counter">0</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-wrapper">

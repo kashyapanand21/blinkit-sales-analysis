@@ -1,0 +1,93 @@
+<%- include('partials/header') %>
+
+<!-- Promotional hero -->
+<section class="hero-banner">
+    <div class="hero-text">
+        <h1>Instant Grocery Delivery</h1>
+        <p>Everything you need in minutes. Fresh vegetables, dairy essentials, cold drinks &amp; snacks.</p>
+    </div>
+    <div class="hero-badge">🛒 100% Genuine Products</div>
+</section>
+
+<!-- Category chips (WHERE category_id = ?) and sort (ORDER BY) -->
+<section class="filter-bar">
+    <div class="category-chips">
+        <a href="/<%= search ? '?search=' + encodeURIComponent(search) : '' %>"
+           class="category-chip <%= categoryId === 0 ? 'active' : '' %>">🛍️ All Items</a>
+        <% categories.forEach(cat => { %>
+            <a href="/?category=<%= cat.category_id %><%= search ? '&search=' + encodeURIComponent(search) : '' %>"
+               class="category-chip <%= categoryId === cat.category_id ? 'active' : '' %>">
+                <%= cat.category_icon %> <%= cat.category_name %>
+            </a>
+        <% }) %>
+    </div>
+
+    <form method="GET" action="/" class="sort-container">
+        <% if (search) { %><input type="hidden" name="search" value="<%= search %>"><% } %>
+        <% if (categoryId > 0) { %><input type="hidden" name="category" value="<%= categoryId %>"><% } %>
+        <label for="sort-select">Sort by:</label>
+        <select id="sort-select" name="sort" class="sort-select" onchange="this.form.submit()">
+            <option value="default"    <%= sort === 'default' ? 'selected' : '' %>>Featured / Newest</option>
+            <option value="price_asc"  <%= sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+            <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+            <option value="name_asc"   <%= sort === 'name_asc' ? 'selected' : '' %>>Name (A - Z)</option>
+        </select>
+    </form>
+</section>
+
+<div class="section-header">
+    <div>
+        <h2 class="section-title"><%= heading %></h2>
+        <span class="muted-small"><%= products.length %> items found in database</span>
+    </div>
+    <% if (search || categoryId > 0) { %>
+        <a href="/" class="link-green">✕ Clear Filters</a>
+    <% } %>
+</div>
+
+<% if (products.length === 0) { %>
+    <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No products match your criteria</h3>
+        <p>Try adjusting your search terms or selecting another category.</p>
+        <a href="/" class="btn-checkout btn-inline">View All Products</a>
+    </div>
+<% } else { %>
+    <div class="product-grid">
+        <% products.forEach(p => { %>
+            <div class="product-card">
+                <div>
+                    <div class="product-img-wrap">
+                        <img src="<%= p.image_url %>" alt="<%= p.product_name %>" loading="lazy" onerror="this.onerror=null;this.src='/img/placeholder.svg'">
+                    </div>
+                    <span class="category-tag"><%= p.category_name %></span>
+                    <h3 class="product-name" title="<%= p.product_name %>"><%= p.product_name %></h3>
+                    <div class="product-unit">
+                        <%= p.unit %>
+                        <% if (p.stock_quantity > 0 && p.stock_quantity < 10) { %>
+                            <span class="low-stock">Only <%= p.stock_quantity %> left</span>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="product-bottom-row">
+                    <div class="product-price"><%= inr(p.price) %></div>
+                    <% if (p.stock_quantity > 0) { %>
+                        <!-- Product data goes in data-* attributes; app.js reads them safely -->
+                        <button type="button" class="btn-add-cart"
+                                data-id="<%= p.product_id %>"
+                                data-name="<%= p.product_name %>"
+                                data-price="<%= p.price %>"
+                                data-unit="<%= p.unit %>"
+                                data-image="<%= p.image_url %>"
+                                data-stock="<%= p.stock_quantity %>">+ ADD</button>
+                    <% } else { %>
+                        <span class="out-of-stock-badge">Sold Out</span>
+                    <% } %>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } %>
+
+<%- include('partials/footer') %>

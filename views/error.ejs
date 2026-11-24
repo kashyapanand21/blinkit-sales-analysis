@@ -1,0 +1,20 @@
+<%- include('partials/header') %>
+
+<div class="admin-card error-card">
+    <h1 class="text-red"><%= title %></h1>
+    <p><%= message %></p>
+
+    <% if (locals.dbDown) { %>
+        <hr class="divider">
+        <p><strong>How to fix it:</strong></p>
+        <ol>
+            <li>Make sure MySQL is running (XAMPP Control Panel → start <strong>MySQL</strong>, or Windows Services → <strong>MySQL80</strong>).</li>
+            <li>Check <code>DB_USER</code> and <code>DB_PASSWORD</code> in your <code>.env</code> file.</li>
+            <li>Run <code>npm run setup</code> to create <code>quickkart_db</code>, then restart with <code>npm start</code>.</li>
+        </ol>
+    <% } %>
+
+    <a href="/" class="cart-pill-btn btn-inline">← Back to Store</a>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+
+<div class="cart-card success-card">
+    <div class="success-icon">🎉</div>
+    <h1 class="text-green">Order Placed Successfully!</h1>
+    <p class="success-lead">
+        Thank you, <strong><%= order.full_name %></strong>! Your grocery order
+        <strong>#<%= order.order_id %></strong> was saved to MySQL and will arrive in 10 minutes.
+    </p>
+
+    <div class="success-details">
+        <div><span>Order ID</span><strong>#<%= order.order_id %></strong></div>
+        <div><span>Total Billed</span><strong class="text-green"><%= inr(order.total_amount) %></strong></div>
+        <div><span>Payment Method</span><strong><%= order.payment_method %></strong></div>
+        <div><span>Delivering to</span><span class="text-right"><%= order.delivery_address %></span></div>
+    </div>
+
+    <div class="success-actions">
+        <a href="/orders#order-<%= order.order_id %>" class="cart-pill-btn btn-blue">View Order History</a>
+        <a href="/" class="cart-pill-btn">Continue Shopping</a>
+    </div>
+</div>
+
+<!-- The order is in MySQL now, so empty the browser cart -->
+<script>document.addEventListener('DOMContentLoaded', () => clearCart());</script>
+
+<%- include('partials/footer') %>

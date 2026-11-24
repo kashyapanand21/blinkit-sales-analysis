@@ -1,0 +1,81 @@
+<%- include('partials/header') %>
+<%
+  const k = results.kpis[0];
+  const maxDay = Math.max(1, ...days.map(d => d.revenue));
+  const maxCat = Math.max(1, ...results.byCategory.map(c => c.revenue));
+%>
+
+<h1 class="page-title">Sales Analytics</h1>
+<p class="page-sub">Every number on this page is a live SQL query on the store's own orders. Click <em>Show SQL</em> under any report to see the exact query.</p>
+
+<!-- KPIs -->
+<div class="metric-grid metric-grid-5">
+    <div class="admin-card metric metric-green"><span class="metric-label">Orders</span><div class="metric-value"><%= k.total_orders %></div></div>
+    <div class="admin-card metric metric-yellow"><span class="metric-label">Revenue</span><div class="metric-value text-green"><%= inr(k.total_revenue) %></div></div>
+    <div class="admin-card metric metric-blue"><span class="metric-label">Avg Order Value</span><div class="metric-value text-blue"><%= inr(k.avg_order_value) %></div></div>
+    <div class="admin-card metric metric-green"><span class="metric-label">Customers</span><div class="metric-value"><%= k.unique_customers %></div></div>
+    <div class="admin-card metric metric-yellow"><span class="metric-label">Biggest Order</span><div class="metric-value"><%= inr(k.biggest_order) %></div></div>
+</div>
+<details class="sql-details"><summary>Show SQL · <%= reports.kpis.concept %></summary><pre><%= reports.kpis.sql %></pre></details>
+
+<div class="analytics-grid">
+
+    <!-- Daily revenue bar chart (pure CSS) -->
+    <section class="admin-card span-2">
+        <h2 class="card-title"><%= reports.daily.title %></h2>
+        <div class="bar-chart" role="img" aria-label="Daily revenue for the last 14 days">
+            <% days.forEach(d => { %>
+                <div class="bar-col" title="<%= d.label %>: <%= inr(d.revenue) %> (running total <%= inr(d.running) %>)">
+                    <span class="bar-value"><%= d.revenue ? '₹' + Math.round(d.revenue) : '' %></span>
+                    <div class="bar" style="height: <%= (d.revenue / maxDay * 100).toFixed(1) %>%"></div>
+                    <span class="bar-label"><%= d.label %></span>
+                </div>
+            <% }) %>
+        </div>
+        <p class="muted-small">Running total after 14 days: <strong><%= inr(days[days.length - 1].running) %></strong></p>
+        <details class="sql-details"><summary>Show SQL · <%= reports.daily.concept %></summary><pre><%= reports.daily.sql %></pre></details>
+    </section>
+
+    <!-- Category revenue (horizontal bars) -->
+    <section class="admin-card">
+        <h2 class="card-title"><%= reports.byCategory.title %></h2>
+        <div class="hbar-list">
+            <% results.byCategory.forEach(c => { %>
+                <div class="hbar-row">
+                    <div class="hbar-head"><span><%= c.category_icon %> <%= c.category_name %></span><span><%= inr(c.revenue) %> · <%= c.pct_share %>%</span></div>
+                    <div class="hbar-track"><div class="hbar" style="width: <%= (c.revenue / maxCat * 100).toFixed(1) %>%"></div></div>
+                    <span class="muted-small"><%= c.units_sold %> units sold</span>
+                </div>
+            <% }) %>
+        </div>
+        <details class="sql-details"><summary>Show SQL · <%= reports.byCategory.concept %></summary><pre><%= reports.byCategory.sql %></pre></details>
+    </section>
+
+    <!-- Tables -->
+    <% [
+         ['topProducts', ['category_name', 'Category'], ['product_name', 'Product'], ['units_sold', 'Units'], ['revenue', 'Revenue', true]],
+         ['topCustomers', ['full_name', 'Customer'], ['orders', 'Orders'], ['total_spent', 'Total Spent', true]],
+         ['payment', ['payment_method', 'Method'], ['orders', 'Orders'], ['pct_orders', '% of Orders'], ['revenue', 'Revenue', true]],
+         ['lowStock', ['product_name', 'Product'], ['stock_quantity', 'Stock'], ['units_sold', 'Sold'], ['stock_status', 'Status']]
+       ].forEach(([key, ...cols]) => { const rep = reports[key]; const rows = results[key]; %>
+        <section class="admin-card">
+            <h2 class="card-title"><%= rep.title %></h2>
+            <div class="table-scroll">
+                <table class="data-table compact">
+                    <thead><tr><% cols.forEach(([, label]) => { %><th><%= label %></th><% }) %></tr></thead>
+                    <tbody>
+                        <% if (!rows.length) { %><tr><td colspan="<%= cols.length %>" class="muted-small">No rows</td></tr><% } %>
+                        <% rows.forEach(r => { %>
+                            <tr><% cols.forEach(([col, , money]) => { %>
+                                <td class="<%= col === 'stock_status' && r[col] === 'Out of stock' ? 'text-red strong' : '' %>"><%= money ? inr(r[col]) : r[col] %></td>
+                            <% }) %></tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+            <details class="sql-details"><summary>Show SQL · <%= rep.concept %></summary><pre><%= rep.sql %></pre></details>
+        </section>
+    <% }) %>
+</div>
+
+<%- include('partials/footer') %>

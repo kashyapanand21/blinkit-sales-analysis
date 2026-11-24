@@ -1,0 +1,108 @@
+<%- include('partials/header') %>
+
+<h1 class="page-title">Admin Inventory Console</h1>
+
+<% if (msg) { %><div class="alert alert-success">✅ <%= msg %></div><% } %>
+<% if (error) { %><div class="alert alert-error">⚠️ <%= error %></div><% } %>
+
+<!-- GROUP BY demo -->
+<section class="admin-card">
+    <h2 class="card-title">📊 Category Analytics (GROUP BY)</h2>
+    <p class="muted-small">
+        <code>SELECT category_name, COUNT(product_id), AVG(price), SUM(stock_quantity) FROM categories LEFT JOIN products … GROUP BY category</code>
+    </p>
+    <div class="stat-grid">
+        <% categoryStats.forEach(stat => { %>
+            <div class="stat-box">
+                <strong><%= stat.category_icon %> <%= stat.category_name %></strong>
+                <div class="stat-value"><%= stat.total_items %> <small>products</small></div>
+                <div class="muted-small">Avg price <%= inr(stat.avg_price) %> · <%= stat.total_stock %> in stock</div>
+            </div>
+        <% }) %>
+    </div>
+</section>
+
+<!-- INSERT demo -->
+<section class="admin-card">
+    <h2 class="card-title">➕ Add New Product (INSERT)</h2>
+    <p class="muted-small">Inserts a row into <code>products</code>, linked to <code>categories</code> by foreign key.</p>
+
+    <form action="/admin/products" method="POST" class="admin-form">
+        <div class="form-group">
+            <label for="category_id">Category *</label>
+            <select id="category_id" name="category_id" class="form-select" required>
+                <option value="">-- Choose Category --</option>
+                <% categories.forEach(cat => { %>
+                    <option value="<%= cat.category_id %>"><%= cat.category_name %></option>
+                <% }) %>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="product_name">Product Name *</label>
+            <input type="text" id="product_name" name="product_name" class="form-input" placeholder="e.g. Fortune Sunlite Refined Oil" required maxlength="150">
+        </div>
+        <div class="form-group">
+            <label for="unit">Weight / Volume *</label>
+            <input type="text" id="unit" name="unit" class="form-input" placeholder="e.g. 1 L, 500 g, 6 pcs" required maxlength="50">
+        </div>
+        <div class="form-group">
+            <label for="price">Price (₹) *</label>
+            <input type="number" id="price" name="price" step="0.50" min="1" class="form-input" placeholder="e.g. 145.00" required>
+        </div>
+        <div class="form-group">
+            <label for="stock_quantity">Stock Qty *</label>
+            <input type="number" id="stock_quantity" name="stock_quantity" min="0" value="50" class="form-input" required>
+        </div>
+        <div class="form-group span-all">
+            <label for="image_url">Image URL (optional)</label>
+            <input type="url" id="image_url" name="image_url" class="form-input" placeholder="https://images.unsplash.com/...">
+        </div>
+        <div class="span-all">
+            <button type="submit" class="btn-checkout btn-inline">Save Product to Database</button>
+        </div>
+    </form>
+</section>
+
+<!-- SELECT + INNER JOIN, UPDATE (restock), DELETE -->
+<section class="admin-card">
+    <div class="card-head-row">
+        <h2 class="card-title">📦 Inventory (<%= products.length %> products)</h2>
+        <span class="muted-small">Live MySQL records</span>
+    </div>
+
+    <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr><th>ID</th><th>Image</th><th>Product</th><th>Category</th><th>Unit</th><th>Price</th><th>Stock</th><th>Restock (UPDATE)</th><th>DELETE</th></tr>
+            </thead>
+            <tbody>
+                <% products.forEach(p => { %>
+                <tr>
+                    <td>#<%= p.product_id %></td>
+                    <td><img class="thumb" src="<%= p.image_url %>" alt="" onerror="this.onerror=null;this.src='/img/placeholder.svg'"></td>
+                    <td><strong><%= p.product_name %></strong></td>
+                    <td><span class="category-tag"><%= p.category_name %></span></td>
+                    <td><%= p.unit %></td>
+                    <td class="strong"><%= inr(p.price) %></td>
+                    <td><span class="strong <%= p.stock_quantity < 10 ? 'text-red' : '' %>"><%= p.stock_quantity %></span></td>
+                    <td>
+                        <form method="POST" action="/admin/products/<%= p.product_id %>/stock" class="inline-form">
+                            <input type="number" name="add_quantity" min="1" max="1000" value="20" class="form-input mini-input" aria-label="Units to add">
+                            <button type="submit" class="btn-small">+ Add</button>
+                        </form>
+                    </td>
+                    <td>
+                        <!-- POST, not a GET link, so a page visit can never delete data -->
+                        <form method="POST" action="/admin/products/<%= p.product_id %>/delete" class="js-confirm"
+                              data-confirm="Delete '<%= p.product_name %>' from the MySQL database?">
+                            <button type="submit" class="btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<%- include('partials/footer') %>
