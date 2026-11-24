@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickKart - Admin Inventory Portal (Node.js & MySQL)</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Main Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="brand-logo">Quick<span>Kart</span> <small style="font-size:0.85rem; color:#4a5568; margin-left: 8px;">Admin Console</small></a>
+            <div class="nav-actions">
+                <a href="index.html" class="nav-link">← Live Store</a>
+                <a href="orders.html" class="nav-link">📦 Order Reports</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+
+        <!-- Category Group By Analytics -->
+        <section class="admin-card">
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: #1a202c; margin-bottom: 6px;">
+                📊 Category Analytics (SQL GROUP BY Demonstration)
+            </h2>
+            <p style="font-size: 0.85rem; color: #718096; margin-bottom: 14px;">
+                Executed query: <code>SELECT c.category_name, COUNT(p.product_id), AVG(p.price) FROM categories c LEFT JOIN products p ... GROUP BY c.category_id</code>
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;" id="admin-stats-container">
+                <!-- Loaded dynamically from /api/admin/stats -->
+            </div>
+        </section>
+
+        <!-- Product Addition Form (SQL INSERT) -->
+        <section class="admin-card">
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: #1a202c; margin-bottom: 6px;">
+                ➕ Add New Grocery Product (SQL INSERT)
+            </h2>
+            <p style="font-size: 0.85rem; color: #718096; margin-bottom: 16px;">
+                Inserts a new product record into the <code>products</code> table with foreign key reference to <code>categories</code>.
+            </p>
+
+            <form id="add-product-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                <div class="form-group">
+                    <label for="category_id">Select Category *</label>
+                    <select id="category_id" class="form-select" required>
+                        <option value="">-- Choose Category --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="product_name">Product Name *</label>
+                    <input type="text" id="product_name" class="form-input" placeholder="e.g. Fortune Sunlite Refined Oil" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="unit">Weight / Volume Unit *</label>
+                    <input type="text" id="unit" class="form-input" placeholder="e.g. 1 L, 500 g, 6 pcs" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price (₹) *</label>
+                    <input type="number" id="price" step="0.50" min="1" class="form-input" placeholder="e.g. 145.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="stock_quantity">Stock Inventory Qty *</label>
+                    <input type="number" id="stock_quantity" min="1" value="50" class="form-input" required>
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="image_url">Product Image Web URL (Unsplash or direct image link)</label>
+                    <input type="url" id="image_url" class="form-input" placeholder="https://images.unsplash.com/...">
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                    <button type="submit" class="btn-checkout" style="width: auto; padding: 10px 28px;">
+                        Save Product to MySQL
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Current Products List (SQL SELECT with INNER JOIN & DELETE) -->
+        <section class="admin-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="font-size: 1.25rem; font-weight: 800; color: #1a202c;">
+                    📦 Inventory Catalog <span id="admin-product-count" style="font-size:0.9rem; font-weight:600; color:#718096;"></span>
+                </h2>
+                <span style="font-size: 0.85rem; color: #718096;">Live MySQL records</span>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Unit</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-products-table-body">
+                        <!-- Loaded dynamically via js/app.js -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p><strong>QuickKart Admin Console</strong> – Academic DBMS Project.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

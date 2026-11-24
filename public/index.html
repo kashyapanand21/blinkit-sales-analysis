@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickKart - 10-Minute Grocery Delivery (Node.js & MySQL)</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Top Announcement Strip -->
+    <div class="top-delivery-bar">
+        ⚡ Superfast 10-minute grocery delivery | Free delivery on orders above ₹199!
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="brand-logo">
+                Quick<span>Kart</span>
+            </a>
+
+            <div class="delivery-badge">
+                <span style="color:#718096; font-size: 0.72rem; text-transform:uppercase; font-weight:700;">Delivery in 10 Mins</span>
+                <strong>College Campus, Block B</strong>
+            </div>
+
+            <!-- SQL LIKE Search Bar -->
+            <form action="index.html" method="GET" class="search-form">
+                <span class="search-icon">🔍</span>
+                <input 
+                    type="text" 
+                    name="search" 
+                    id="search-input"
+                    class="search-input" 
+                    placeholder="Search 'milk', 'bread', 'maggi', 'coke'..." 
+                >
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+
+            <div class="nav-actions">
+                <a href="orders.html" class="nav-link">📦 My Orders</a>
+                <a href="admin.html" class="nav-link" style="color: #4a5568;">⚙️ Admin</a>
+                <a href="cart.html" class="cart-pill-btn">
+                    <span>🛒 My Cart</span>
+                    <span id="navbar-cart-count" class="cart-counter">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-wrapper">
+
+        <!-- Promotional Hero Card -->
+        <section class="hero-banner">
+            <div class="hero-text">
+                <h1>Instant Grocery Delivery</h1>
+                <p>Powered by <strong>Node.js, Express & MySQL 8.0 Relational Database</strong>.</p>
+            </div>
+            <div class="hero-badge">
+                🛒 100% Genuine Products
+            </div>
+        </section>
+
+        <!-- Category Pills & Sort Filter Bar -->
+        <section class="filter-bar">
+            <!-- Category Chips Filter -->
+            <div class="category-chips" id="category-chips">
+                <!-- Loaded dynamically from /api/categories -->
+            </div>
+
+            <!-- Price & Name Sort Dropdown -->
+            <form method="GET" action="index.html" class="sort-container">
+                <label for="sort-select">Sort by:</label>
+                <select id="sort-select" name="sort" class="sort-select" onchange="this.form.submit()">
+                    <option value="default">Featured / Newest</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="name_asc">Name (A - Z)</option>
+                </select>
+            </form>
+        </section>
+
+        <!-- Product Grid Header -->
+        <div class="section-header">
+            <div>
+                <h2 class="section-title" id="section-title">Popular Grocery Essentials</h2>
+                <span style="font-size:0.85rem; color:#718096;" id="product-count-display">Fetching items from MySQL...</span>
+            </div>
+            <a href="index.html" style="font-size:0.85rem; color:#0c831f; font-weight:600; text-decoration:none;">✕ Clear Filters</a>
+        </div>
+
+        <!-- Product Cards Grid -->
+        <div class="product-grid" id="product-grid">
+            <!-- Rendered dynamically via public/js/app.js from /api/products -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p><strong>QuickKart</strong> – Academic 2nd Year DBMS / DMGT Coursework Project.</p>
+        <p style="margin-top: 6px;">Demonstrating MySQL Relational Database, 3NF Normalization & Node.js Backend.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

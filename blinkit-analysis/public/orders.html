@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickKart - Orders & DBMS Report (Node.js & MySQL)</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="brand-logo">Quick<span>Kart</span></a>
+            <div class="nav-actions">
+                <a href="index.html" class="nav-link">← Store Catalog</a>
+                <a href="admin.html" class="nav-link">⚙️ Admin</a>
+                <a href="cart.html" class="cart-pill-btn">
+                    <span>🛒 My Cart</span>
+                    <span id="navbar-cart-count" class="cart-counter">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+        <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 8px;">Order History & Relational Reports</h1>
+        <p style="color: #718096; margin-bottom: 24px;">Displaying live order records fetched from MySQL using <code>INNER JOIN</code> and aggregate functions.</p>
+
+        <!-- Aggregate Summary Metrics Cards (COUNT, SUM, AVG) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <div class="admin-card" style="margin-bottom: 0; border-left: 4px solid #0c831f;">
+                <span style="font-size: 0.8rem; text-transform: uppercase; color: #718096; font-weight: 700;">Total Orders Placed (COUNT)</span>
+                <div style="font-size: 1.8rem; font-weight: 800; color: #1a202c; margin-top: 4px;" id="metric-total-orders">0</div>
+            </div>
+            <div class="admin-card" style="margin-bottom: 0; border-left: 4px solid #f8cb46;">
+                <span style="font-size: 0.8rem; text-transform: uppercase; color: #718096; font-weight: 700;">Total Grocery Revenue (SUM)</span>
+                <div style="font-size: 1.8rem; font-weight: 800; color: #0c831f; margin-top: 4px;" id="metric-total-sales">₹0.00</div>
+            </div>
+            <div class="admin-card" style="margin-bottom: 0; border-left: 4px solid #3182ce;">
+                <span style="font-size: 0.8rem; text-transform: uppercase; color: #718096; font-weight: 700;">Average Order Value (AVG)</span>
+                <div style="font-size: 1.8rem; font-weight: 800; color: #2b6cb0; margin-top: 4px;" id="metric-avg-order">₹0.00</div>
+            </div>
+        </div>
+
+        <!-- Orders Listing Container -->
+        <div id="orders-list">
+            <!-- Rendered dynamically via js/app.js -->
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <p><strong>QuickKart</strong> – Database Management Systems Coursework Project.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
