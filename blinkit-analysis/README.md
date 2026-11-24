@@ -1,158 +1,116 @@
-# Blinkit Grocery Sales Analysis: MySQL Mini Project
+# QuickKart – Mini Grocery Shopping Website (Blinkit-Inspired)
 
-A small full-stack web app that shows how MySQL connects to a real project.
-Grocery sales data is stored in MySQL. A Node.js/Express backend runs SQL queries,
-and an HTML/CSS/JS dashboard shows the results as KPIs, charts and tables.
-You can also add and delete sales records from the browser and watch the dashboard update.
+A clean, responsive, and functional relational database web project designed specifically for **2nd Year Engineering Coursework in DBMS (Database Management Systems) / DMGT**.
 
-```
-Browser (HTML / CSS / JS + Chart.js)
-        │  fetch('/api/analytics/kpis?location=Tier 1')
-        ▼
-Express server (server.js, routes/)
-        │  SELECT ... FROM blinkit_sales WHERE outlet_location_type = ?
-        ▼
-MySQL database (blinkit_db.blinkit_sales)
+---
+
+## 📌 Technology Stack
+
+- **Frontend:** HTML5, CSS3 (Blinkit Green `#0c831f` & Yellow `#f8cb46` theme), Vanilla JavaScript (No React/Node/Mongo bloat).
+- **Backend:** PHP 7.4+ / 8.x (Native PDO with prepared statements).
+- **Database:** MySQL 5.7+ / 8.0 / MariaDB.
+- **Local Server Environment:** XAMPP (Apache + MySQL + phpMyAdmin).
+
+---
+
+## 📁 Project Directory Structure
+
+```text
+QuickKart/
+│
+├── config/
+│   └── db.php                  # PDO database connection with beginner-friendly error handling
+│
+├── css/
+│   └── style.css               # Blinkit-inspired responsive styling, card grid, tables, badges
+│
+├── js/
+│   └── app.js                  # Cart state (localStorage), badge counter, total calculator
+│
+├── database/
+│   ├── schema.sql              # Database DDL (5 normalized tables) + realistic grocery seed data
+│   └── queries_showcase.sql    # Every required SQL query categorized for Viva & Lab exams
+│
+├── index.php                   # Home catalog (Category filter, price sort, SQL LIKE search)
+├── cart.php                    # Shopping cart & checkout form for customer credentials
+├── place_order.php             # Backend processor (ACID Transaction, stock decrement, order items)
+├── orders.php                  # Relational report page (INNER JOIN across 5 tables, COUNT, SUM, AVG)
+├── admin.php                   # Product management portal (SQL INSERT, DELETE, GROUP BY metrics)
+├── admin_actions.php           # Handles admin product additions and deletions securely
+├── PROJECT_REPORT.md           # Full academic report, ER diagram, 3NF normalization & Viva Q&A
+└── README.md                   # Setup guide and instructions
 ```
 
 ---
 
-## 1. What you need (Windows)
+## 🚀 Setup & Installation Guide (Using XAMPP)
 
-| Tool | Get it from | Check it works |
-|------|-------------|----------------|
-| Node.js 18+ (LTS) | nodejs.org | `node -v` |
-| MySQL Server 8.x + Workbench | dev.mysql.com/downloads/installer | open Workbench and connect |
+Follow these step-by-step instructions to run the project locally on your machine:
 
-During MySQL install, note the **root password** you set. You'll need it below.
+### Step 1: Install XAMPP
+If not already installed, download and install [XAMPP for Windows](https://www.apachefriends.org/index.html).
 
-> MySQL 8+ (or MariaDB 10.2+) is required because the project uses window functions (`RANK() OVER`).
-
-## 2. Setup (one time)
-
-Open a terminal (Command Prompt / PowerShell / VS Code terminal) in the project folder:
-
-```bash
-npm install
-copy .env.example .env
+### Step 2: Copy Project to `htdocs`
+Copy the entire `QuickKart` folder to your XAMPP web root directory:
+```text
+C:\xampp\htdocs\QuickKart
 ```
 
-Open `.env` and set `DB_PASSWORD` to your MySQL root password.
+### Step 3: Start Apache & MySQL
+1. Open the **XAMPP Control Panel**.
+2. Click **Start** next to **Apache**.
+3. Click **Start** next to **MySQL**.
+Both modules should turn green.
 
-Then load the data:
+### Step 4: Import Database in phpMyAdmin
+1. Open your web browser and navigate to: [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
+2. In the top navigation bar, click the **Import** tab.
+3. Click **Choose File** and select:
+   ```text
+   C:\xampp\htdocs\QuickKart\database\schema.sql
+   ```
+4. Scroll to the bottom and click **Go** (or **Import**).
+5. The `quickkart_db` database will be created with all 5 normalized tables and sample grocery products.
 
-```bash
-npm run setup
+### Step 5: Launch the Website
+Open your browser and visit:
+```text
+http://localhost/QuickKart/
 ```
-
-This creates the `blinkit_db` database and the `blinkit_sales` table, imports the CSV,
-and cleans the fat-content labels.
-
-### Using the real Kaggle dataset
-
-The project ships with `data/sample_blinkit.csv`, **2,000 synthetic rows** that have the
-same columns as the real dataset, so the app runs straight away. For your final
-submission, use the real data:
-
-1. Download it from kaggle.com/datasets/mukeshgadri/blinkit-dataset
-2. If you get an `.xlsx` file, open it in Excel → *Save As* → **CSV (Comma delimited)**
-3. Put it in the `data/` folder and run:
-
-```bash
-npm run setup -- "data/BlinkIT Grocery Data.csv"
-```
-
-The importer matches column names automatically ("Item Fat Content" → `item_fat_content`).
-
-## 3. Run
-
-```bash
-npm start
-```
-
-Open **http://localhost:3000**. The green badge at the top right confirms the MySQL connection.
 
 ---
 
-## 4. Project structure
+## 🧪 Step-by-Step Feature Walkthrough
 
-```
-blinkit-analysis/
-├── server.js              Express app: serves the frontend + API, /api/health
-├── db.js                  MySQL connection pool (mysql2)
-├── routes/
-│   ├── analytics.js       All analysis queries (KPIs, GROUP BY, HAVING, window functions)
-│   └── records.js         CRUD: list/search, insert, delete sales records
-├── scripts/
-│   └── import-csv.js      Creates DB + table, bulk-inserts the CSV, runs cleaning
-├── sql/
-│   ├── schema.sql         CREATE TABLE with indexes
-│   └── clean.sql          Data-cleaning UPDATEs (run in Workbench too)
-├── public/
-│   ├── index.html         Dashboard layout
-│   ├── style.css          Styling (responsive)
-│   └── app.js             fetch() calls, Chart.js charts, tables, form handling
-└── data/
-    └── sample_blinkit.csv Sample data (replace with the Kaggle file)
-```
+1. **Browse Groceries:**
+   - Scroll through 20+ realistic grocery items categorized under Dairy, Fruits & Vegetables, Cold Drinks, Snacks, and Bakery.
+2. **Search using SQL `LIKE`:**
+   - Type `milk`, `apple`, `chips`, or `coke` in the top search bar and press Enter.
+3. **Filter & Sort:**
+   - Click category chips (e.g., *Dairy, Bread & Eggs*, *Fruits & Vegetables*).
+   - Use the **Sort by** dropdown to sort products by *Price: Low to High* or *High to Low*.
+4. **Cart Operations:**
+   - Click **+ ADD** on any item to add it to your shopping cart.
+   - Click the green **🛒 My Cart** button in the navbar.
+   - In `cart.php`, change quantity (+ / -) or remove items. The subtotal and delivery fees recalculate automatically.
+5. **Place an Order:**
+   - Fill in your name, email, phone number, and delivery address.
+   - Click **🚀 Place 10-Min Order**.
+   - Behind the scenes, PHP runs a MySQL **ACID transaction** (`BEGIN TRANSACTION`, `INSERT INTO customers`, `INSERT INTO orders`, `INSERT INTO order_items`, and decrements inventory in `products`).
+6. **View Order History:**
+   - Click **📦 My Orders** (`orders.php`) to view the relational report powered by multi-table `INNER JOIN`s, `COUNT()`, `SUM()`, and `AVG()`.
+7. **Admin Product Management:**
+   - Click **⚙️ Admin** (`admin.php`).
+   - View category-level product counts using `GROUP BY`.
+   - Add a new product via the form (`INSERT`).
+   - Delete an item from the table (`DELETE`).
 
-## 5. Features → SQL concepts (for your report and viva)
+---
 
-| Dashboard part | SQL concept used |
-|----------------|------------------|
-| 4 KPI cards (total sales, avg sales, items, avg rating) | `SUM`, `AVG`, `COUNT`, `ROUND` |
-| Filter bar (tier, size, outlet type, fat, item type) | Dynamic `WHERE` with `?` placeholders |
-| Sales by fat content / outlet size / city tier | `GROUP BY` + aggregates |
-| Revenue by item type with % share | Window function `SUM(SUM(sales)) OVER ()` |
-| Sales by outlet opening year | `GROUP BY` + `ORDER BY` (trend) |
-| Top 3 item types per outlet type | `RANK() OVER (PARTITION BY ...)` + subquery |
-| Below-average item types | `HAVING` with a subquery |
-| Sales records table | `SELECT ... LIMIT ? OFFSET ?` (pagination), `LIKE` (search) |
-| Add sale / Delete | `INSERT`, `DELETE` |
-| Data cleaning on import | `UPDATE ... WHERE ... IN (...)` |
+## 🎓 Academic Evaluation Highlights
 
-Every chart and table has a **`</> SQL`** button that shows the exact query MySQL ran,
-including the current filters. This is handy when you present.
-
-## 6. Demo script (2–3 minutes)
-
-1. Point at the green badge: "The app is connected to MySQL; this many rows are in the table."
-2. Walk through the KPI cards, then click `</> SQL` to show the query behind them.
-3. Change **City tier → Tier 1**. Every chart updates, because each request adds a `WHERE` clause.
-4. Open the SQL for **Top 3 per outlet type** and explain `PARTITION BY`.
-5. Scroll to **Sales Records**, add a sale (e.g. `FDA15`, Dairy, ₹500, rating 4.5).
-   The record appears and *Total Sales* goes up: a live `INSERT` followed by fresh `SELECT`s.
-6. Delete it again.
-
-## 7. Likely viva questions
-
-- **Why not connect the browser directly to MySQL?**
-  The DB password would be exposed in the browser, and anyone could run any query.
-  The backend is the only thing that talks to MySQL, and it runs only fixed, known queries.
-
-- **How do you stop SQL injection?**
-  User values never get pasted into SQL strings. They're sent as `?` parameters, and
-  `mysql2` escapes them. Filter column names come from a fixed whitelist (`FILTERS` in `analytics.js`).
-
-- **Why a connection pool?**
-  Opening a MySQL connection is slow. A pool keeps up to 10 open and reuses them across requests.
-
-- **WHERE vs HAVING?**
-  `WHERE` filters rows before grouping. `HAVING` filters groups after `GROUP BY`
-  (e.g. "item types whose `AVG(sales)` is below the overall average").
-
-- **Why indexes on `outlet_location_type`, `outlet_type`, `item_type`?**
-  These are the columns we filter and group by most, so indexes make those queries faster as the data grows.
-
-- **Why batch inserts in the importer?**
-  One `INSERT` with 500 rows is far faster than 500 separate `INSERT`s (fewer round trips to the server).
-
-## 8. Troubleshooting
-
-| Problem | Fix |
-|---------|-----|
-| `Access denied for user 'root'` | Wrong `DB_PASSWORD` in `.env` |
-| `ECONNREFUSED` | MySQL service not running: Windows key → *Services* → start **MySQL80** |
-| Error 1175 in Workbench when running `clean.sql` | Already handled: the file turns off `SQL_SAFE_UPDATES` |
-| `RANK` / `OVER` syntax error | You're on MySQL 5.7, so upgrade to MySQL 8 |
-| Port 3000 in use | Change `PORT` in `.env` |
+- **No Hardcoded Products:** All items and categories are dynamically read from MySQL tables.
+- **Relational Integrity:** Implemented foreign keys with `ON DELETE CASCADE` and `ON UPDATE CASCADE`.
+- **Prepared Statements:** Uses PHP PDO prepared queries to prevent SQL Injection.
+- **Transactions:** Demonstrates ACID properties when generating order invoices.
+- **Documentation:** Full ER diagram, Relational Schema, and Viva Q&A available in [`PROJECT_REPORT.md`](PROJECT_REPORT.md).
